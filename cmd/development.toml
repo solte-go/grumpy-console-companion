@@ -1,0 +1,12 @@
+[logging]
+    loglevel = "debug"
+    remote_address = ""             #localhost if you using for local graylog
+    remote_protocol ="tcp"          #udp is supported
+    remote_port = 54119             #12201 if you using for local graylog
+
+[mongo]
+    database_url = ""
+    max_pool_size = 20
+    connect_timeout = "30s"
+    database_name = "gcb-dev"
+    thoughts = "thoughts"
