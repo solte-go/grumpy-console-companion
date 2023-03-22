@@ -12,12 +12,17 @@ import (
 
 type Config struct {
 	Environment string
+	API         *API     `mapstructure:"api"`
 	Logging     *Logging `mapstructure:"logging"`
 	MongoDB     *MongoDB `mapstructure:"mongo"`
 	Grumpy      *Grumpy  `mapstructure:"grumpy"`
 }
 
 type Grumpy struct {
+}
+
+type API struct {
+	Address string `mapstructure:"address"`
 }
 
 type MongoDB struct {

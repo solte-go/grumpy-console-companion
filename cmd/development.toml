@@ -10,3 +10,6 @@
     connect_timeout = "30s"
     database_name = "gcb-dev"
     thoughts = "thoughts"
+
+[API]
+    address = "127.0.0.1:80"

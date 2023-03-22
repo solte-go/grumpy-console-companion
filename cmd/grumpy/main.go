@@ -5,10 +5,12 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"grumpy-console-companion/sotle-go/src/config"
-	"grumpy-console-companion/sotle-go/src/grumpy/brain/answer"
-	"grumpy-console-companion/sotle-go/src/logging"
-	"grumpy-console-companion/sotle-go/src/storage/mongodb"
+	"go.uber.org/zap"
+	"grumpy-console-companion/sotle-go/config"
+	"grumpy-console-companion/sotle-go/pkg/client"
+	"grumpy-console-companion/sotle-go/pkg/grumpy/brain/answer"
+	"grumpy-console-companion/sotle-go/pkg/logging"
+	"grumpy-console-companion/sotle-go/pkg/storage/mongodb"
 	"math/rand"
 	"time"
 )
@@ -19,8 +21,8 @@ var (
 )
 
 func init() {
-	morning[1] = "Yep! Good morning. What for breakfast!?"
-	morning[2] = "Give me the coffee!"
+	morning[1] = "Yep! Good morning. What for is breakfast!?"
+	morning[2] = "Give me the Carrots!"
 	morning[3] = "A bit of music?"
 	morning[4] = "Let's drink ourself to oblivion!?"
 
@@ -46,18 +48,22 @@ func main() {
 		panic(fmt.Sprintf("Can't initialize logger: %s", err.Error()))
 	}
 
-	storage, err := mongodb.InitDatabase(ctx, conf, logger)
+	//storage, err := mongodb.InitDatabase(ctx, conf, logger)
+	//if err != nil {
+	//	logger.Fatal("error", zap.Error(err))
+	//}
+	var storage mongodb.DB
 
-	brain := answer.New(storage)
-	run(ctx, brain)
+	c, err := client.New(conf.API.Address)
+	if err != nil {
+		panic(err)
+	}
+
+	brain := answer.New(&storage)
+	run(ctx, brain, logger, c)
 }
 
-func run(ctx context.Context, brain ListeningContract) {
-
-	rand.NewSource(time.Now().UnixNano())
-	idMin := 1
-	idMax := 4
-
+func run(ctx context.Context, brain ListeningContract, logger *zap.Logger, c *client.Client) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -65,17 +71,26 @@ func run(ctx context.Context, brain ListeningContract) {
 		default:
 		}
 
-		goToBrain := rand.Intn(idMax-idMin) + idMin
-		thought := morning[goToBrain]
-		err := WriteText(thought)
+		topic, thought, err := c.QOTD(context.Background(), "greeting")
 		if err != nil {
 			panic(err)
 		}
+		err = WriteText(topic)
+		if err != nil {
+			panic(err)
+		}
+
+		err = WriteText(thought)
+		if err != nil {
+			panic(err)
+		}
+
 		aws := brain.WaitingForAnswer()
 		err = WriteText(aws)
 		if err != nil {
 			panic(err)
 		}
+
 		time.Sleep(randomSleep())
 	}
 }

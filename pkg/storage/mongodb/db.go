@@ -8,8 +8,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
 	"go.uber.org/zap"
-	"grumpy-console-companion/sotle-go/src/config"
-	"grumpy-console-companion/sotle-go/src/storage/mongodb/collection"
+	"grumpy-console-companion/sotle-go/config"
+	"grumpy-console-companion/sotle-go/pkg/storage/mongodb/collection"
 )
 
 type DB struct {

@@ -3,7 +3,7 @@ package answer
 import (
 	"bufio"
 	"context"
-	"grumpy-console-companion/sotle-go/src/storage/mongodb"
+	"grumpy-console-companion/sotle-go/pkg/storage/mongodb"
 	"os"
 	"time"
 )

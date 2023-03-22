@@ -26,10 +26,6 @@ func InitConfig() Config {
 		ThoughtsCollection: "thoughts_collection",
 	}
 
-	indices := make(map[string]string)
-	indices["main_index"] = "main-development"
-	indices["log_index"] = "log-developmen"
-
 	c.MongoDB = mongo
 	c.Logging = logger
 

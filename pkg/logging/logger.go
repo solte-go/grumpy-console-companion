@@ -1,7 +1,7 @@
 package logging
 
 import (
-	"grumpy-console-companion/sotle-go/src/config"
+	"grumpy-console-companion/sotle-go/config"
 	"os"
 	"time"
 
