@@ -15,7 +15,7 @@ type Config struct {
 	API         *API     `mapstructure:"api"`
 	Logging     *Logging `mapstructure:"logging"`
 	MongoDB     *MongoDB `mapstructure:"mongo"`
-	Grumpy      *Grumpy  `mapstructure:"grumpy"`
+	Grumpy      *Grumpy  `mapstructure:"grumplyclient"`
 }
 
 type Grumpy struct {
@@ -31,6 +31,7 @@ type MongoDB struct {
 	ConnectTimeout     time.Duration `mapstructure:"connect_timeout"`
 	DatabaseName       string        `mapstructure:"database_name"`
 	ThoughtsCollection string        `mapstructure:"thoughts"`
+	TopicsCollection   string        `mapstructure:"topics"`
 }
 
 type Logging struct {

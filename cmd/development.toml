@@ -8,7 +8,8 @@
     database_url = ""
     max_pool_size = 20
     connect_timeout = "30s"
-    database_name = "gcb-dev"
+    database_name = "gcc-dev"
+    topics = "topics"
     thoughts = "thoughts"
 
 [API]

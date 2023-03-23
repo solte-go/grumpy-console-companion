@@ -1,4 +1,4 @@
-package client
+package grcpclient
 
 import (
 	"context"
@@ -21,6 +21,10 @@ func New(addr string) (*Client, error) {
 		client: gcc.NewGCCClient(conn),
 		conn:   conn,
 	}, nil
+}
+
+func GetClient() {
+
 }
 
 func (c *Client) QOTD(ctx context.Context, wantAuthor string) (author, quite string, err error) {

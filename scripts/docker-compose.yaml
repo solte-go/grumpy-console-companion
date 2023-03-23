@@ -3,7 +3,7 @@ version: "3.7"
 services:
   prometheus:
     image: "prom/prometheus"
-    container_name: grumpy-prometheus
+    container_name: grumplyclient-prometheus
     ports:
       - "9090:9090"
     expose:
@@ -17,7 +17,7 @@ services:
       - grumpy-network
 
   mongodb:
-    container_name: grumpy-mongodb
+    container_name: grumplyclient-mongodb
     image: mongo
     deploy:
       restart_policy:

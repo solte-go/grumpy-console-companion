@@ -2,10 +2,9 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"grumpy-console-companion/sotle-go/pkg/model"
+	"grumpy-console-companion/sotle-go/pkg/storage"
 	gcc "grumpy-console-companion/sotle-go/proto"
 	"math/rand"
 	"net"
@@ -15,20 +14,23 @@ import (
 type API struct {
 	gcc.UnimplementedGCCServer
 	address    string
-	quotes     map[string][]string
 	mu         sync.Mutex
 	grpcServer *grpc.Server
+	contract   contract
 }
 
-func New(address string) (*API, error) {
+type contract interface {
+	GetAllTopics(ctx context.Context) ([]model.Topics, error)
+	GetThoughtsOnTopic(ctx context.Context, topic string) ([]model.Thoughts, error)
+}
+
+func New(address string, st storage.Storage) (*API, error) {
 	var opts []grpc.ServerOption
-	q := make(map[string][]string)
-	q["greeting"] = []string{"The day is longer when you're bored", "Coffee is the only liquid you need"}
 
 	api := &API{
 		address:    address,
-		quotes:     q,
 		grpcServer: grpc.NewServer(opts...),
+		contract:   st,
 	}
 	api.grpcServer.RegisterService(&gcc.GCC_ServiceDesc, api)
 	return api, nil
@@ -53,24 +55,32 @@ func (api *API) Stop() {
 }
 
 func (api *API) GetGCC(ctx context.Context, req *gcc.GetReq) (*gcc.GetResp, error) {
-	var (
-		author string
-		quotes []string
-	)
-	if author == "" {
-		for author, quotes = range api.quotes {
-			break
+	if req.Thoughts != "" {
+		result, err := api.contract.GetAllTopics(ctx)
+		if err != nil {
+			return &gcc.GetResp{
+				Topic:   "error",
+				Thought: "I'm shorted out, contact the creator!",
+			}, err
 		}
-	} else {
-		author = req.Thoughts
-		var ok bool
-		quotes, ok = api.quotes[req.Thoughts]
-		if !ok {
-			return nil, status.Error(codes.NotFound, fmt.Sprintf("author %q not found", req.Thoughts))
+
+		randomTopics := result[rand.Intn(len(result))].Name
+		tghResult, err := api.contract.GetThoughtsOnTopic(ctx, randomTopics)
+		if err != nil {
+			return &gcc.GetResp{
+				Topic:   "error",
+				Thought: "I'm shorted out, contact the creator!",
+			}, err
 		}
+
+		return &gcc.GetResp{
+			Topic:   randomTopics,
+			Thought: tghResult[rand.Intn(len(tghResult))].Phrase,
+		}, nil
 	}
+
 	return &gcc.GetResp{
-		Topic:   author,
-		Thought: quotes[rand.Intn(len(quotes))],
+		Topic:   "None",
+		Thought: "What do you want to discuss?",
 	}, nil
 }

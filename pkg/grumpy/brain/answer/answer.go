@@ -3,7 +3,6 @@ package answer
 import (
 	"bufio"
 	"context"
-	"grumpy-console-companion/sotle-go/pkg/storage/mongodb"
 	"os"
 	"time"
 )
@@ -18,7 +17,7 @@ type Listening struct {
 	AnswerChannel chan respond
 }
 
-func New(db *mongodb.DB) *Listening {
+func New() *Listening {
 	return &Listening{
 		AnswerChannel: make(chan respond, 1),
 	}
@@ -35,6 +34,17 @@ func (a *Listening) WaitingForAnswer() string {
 	return "Oh yeah. Just ignore me! As Usual!"
 }
 
+func (a *Listening) StandByForAnswer(duration time.Duration) string {
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(duration))
+	defer cancel()
+
+	rsp := a.waiting(ctx)
+	if rsp.ok {
+		return rsp.text
+	}
+	return "Boring... "
+}
+
 func (a *Listening) ReadingAnswer() {
 	arr := make([]string, 0)
 	scanner := bufio.NewScanner(os.Stdin)
@@ -47,10 +57,9 @@ func (a *Listening) ReadingAnswer() {
 		if len(text) != 0 {
 			arr = append(arr, text)
 			a.AnswerChannel <- respond{
-				text: text + " let's do it!",
+				text: text,
 				ok:   true,
 			}
-			return
 		} else {
 			a.AnswerChannel <- respond{}
 			return
